@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Tellraw Generator 1.21.1</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .panel h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+
+        .text-entry {
+            margin-bottom: 20px;
+        }
+
+        .text-entry textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            resize: vertical;
+            transition: border-color 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+
+        .text-entry textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .selector-group {
+            margin-bottom: 20px;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #eee;
+        }
+
+        .selector-group h3 {
+            margin-bottom: 10px;
+            color: #555;
+            font-size: 1.1em;
+        }
+
+        .selector-dropdown {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+
+        .selector-dropdown:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .selector-info {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .formatting-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .option-group {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #eee;
+        }
+
+        .option-group h3 {
+            margin-bottom: 10px;
+            color: #555;
+            font-size: 1.1em;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #4CAF50;
+        }
+
+        .color-selector {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .color-btn {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .color-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .color-btn.selected {
+            border-color: #333;
+            transform: scale(1.2);
+        }
+
+        .minecraft-colors {
+            --black: #000000;
+            --dark-blue: #0000AA;
+            --dark-green: #00AA00;
+            --dark-aqua: #00AAAA;
+            --dark-red: #AA0000;
+            --dark-purple: #AA00AA;
+            --gold: #FFAA00;
+            --gray: #AAAAAA;
+            --dark-gray: #555555;
+            --blue: #5555FF;
+            --green: #55FF55;
+            --aqua: #55FFFF;
+            --red: #FF5555;
+            --light-purple: #FF55FF;
+            --yellow: #FFFF55;
+            --white: #FFFFFF;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .preview {
+            background: #2c2c2c;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 100px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+
+        .output {
+            background: #1e1e1e;
+            color: #f0f0f0;
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 300px;
+            overflow-y: auto;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .output:hover {
+            background: #2a2a2a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .copy-tooltip {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(10px);
+        }
+
+        .output:hover .copy-tooltip {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .copy-icon {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .copy-tooltip.copied {
+            background: rgba(76, 175, 80, 1);
+        }
+
+        .mc-black { color: #000000; }
+        .mc-dark-blue { color: #0000AA; }
+        .mc-dark-green { color: #00AA00; }
+        .mc-dark-aqua { color: #00AAAA; }
+        .mc-dark-red { color: #AA0000; }
+        .mc-dark-purple { color: #AA00AA; }
+        .mc-gold { color: #FFAA00; }
+        .mc-gray { color: #AAAAAA; }
+        .mc-dark-gray { color: #555555; }
+        .mc-blue { color: #5555FF; }
+        .mc-green { color: #55FF55; }
+        .mc-aqua { color: #55FFFF; }
+        .mc-red { color: #FF5555; }
+        .mc-light-purple { color: #FF55FF; }
+        .mc-yellow { color: #FFFF55; }
+        .mc-white { color: #FFFFFF; }
+
+        .mc-bold { font-weight: bold; }
+        .mc-italic { font-style: italic; }
+        .mc-underlined { text-decoration: underline; }
+        .mc-strikethrough { text-decoration: line-through; }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .formatting-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Minecraft Tellraw Generator</h1>
+            <p>Create formatted JSON text commands for Minecraft 1.21.1 NeoForge</p>
+        </div>
+
+        <div class="content">
+            <div class="panel">
+                <h2>Text Editor</h2>
+                
+                <div class="selector-group">
+                    <h3>Target Selector</h3>
+                    <select class="selector-dropdown" id="targetSelector">
+                        <option value="@a">@a - All players</option>
+                        <option value="@p">@p - Nearest player</option>
+                        <option value="@s">@s - Self (command executor)</option>
+                        <option value="@r">@r - Random player</option>
+                        <option value="@e">@e - All entities</option>
+                        <option value="player_name">Custom player name</option>
+                    </select>
+                    <div class="selector-info" id="selectorInfo">Sends message to all players on the server</div>
+                </div>
+                
+                <div class="text-entry">
+                    <textarea id="textInput" placeholder="Enter your text here...">Hello, Minecraft World!</textarea>
+                </div>
+
+                <div class="formatting-options">
+                    <div class="option-group">
+                        <h3>Text Formatting</h3>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="bold">
+                                <label for="bold">Bold</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="italic">
+                                <label for="italic">Italic</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="underlined">
+                                <label for="underlined">Underlined</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="strikethrough">
+                                <label for="strikethrough">Strikethrough</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="obfuscated">
+                                <label for="obfuscated">Obfuscated</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="option-group">
+                        <h3>Text Color</h3>
+                        <div class="color-selector">
+                            <div class="color-btn" style="background: #000000" data-color="black" title="Black"></div>
+                            <div class="color-btn" style="background: #0000AA" data-color="dark_blue" title="Dark Blue"></div>
+                            <div class="color-btn" style="background: #00AA00" data-color="dark_green" title="Dark Green"></div>
+                            <div class="color-btn" style="background: #00AAAA" data-color="dark_aqua" title="Dark Aqua"></div>
+                            <div class="color-btn" style="background: #AA0000" data-color="dark_red" title="Dark Red"></div>
+                            <div class="color-btn" style="background: #AA00AA" data-color="dark_purple" title="Dark Purple"></div>
+                            <div class="color-btn" style="background: #FFAA00" data-color="gold" title="Gold"></div>
+                            <div class="color-btn" style="background: #AAAAAA" data-color="gray" title="Gray"></div>
+                            <div class="color-btn" style="background: #555555" data-color="dark_gray" title="Dark Gray"></div>
+                            <div class="color-btn" style="background: #5555FF" data-color="blue" title="Blue"></div>
+                            <div class="color-btn" style="background: #55FF55" data-color="green" title="Green"></div>
+                            <div class="color-btn" style="background: #55FFFF" data-color="aqua" title="Aqua"></div>
+                            <div class="color-btn" style="background: #FF5555" data-color="red" title="Red"></div>
+                            <div class="color-btn" style="background: #FF55FF" data-color="light_purple" title="Light Purple"></div>
+                            <div class="color-btn" style="background: #FFFF55" data-color="yellow" title="Yellow"></div>
+                            <div class="color-btn selected" style="background: #FFFFFF; border-color: #333" data-color="white" title="White"></div>
+                        </div>
+                    </div>
+
+                    <div class="option-group">
+                        <h3>Click Event</h3>
+                        <select class="selector-dropdown" id="clickEventType" style="margin-bottom: 10px;">
+                            <option value="none">No Click Event</option>
+                            <option value="run_command">Run Command</option>
+                            <option value="suggest_command">Suggest Command</option>
+                            <option value="open_url">Open URL</option>
+                            <option value="copy_to_clipboard">Copy to Clipboard</option>
+                            <option value="change_page">Change Book Page</option>
+                        </select>
+                        <input type="text" id="clickEventValue" placeholder="Enter command, URL, or text..." 
+                               style="width: 100%; padding: 8px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px; display: none;">
+                        <div class="selector-info" id="clickEventInfo" style="display: none;">Click action will be applied to selected text</div>
+                    </div>
+
+                    <div class="option-group">
+                        <h3>Hover Event</h3>
+                        <select class="selector-dropdown" id="hoverEventType" style="margin-bottom: 10px;">
+                            <option value="none">No Hover Event</option>
+                            <option value="show_text">Show Text</option>
+                            <option value="show_item">Show Item</option>
+                            <option value="show_entity">Show Entity</option>
+                        </select>
+                        <textarea id="hoverEventValue" placeholder="Enter hover text or JSON..." 
+                                  style="width: 100%; height: 60px; padding: 8px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px; resize: vertical; display: none;"></textarea>
+                        <div class="selector-info" id="hoverEventInfo" style="display: none;">Hover action will be applied to selected text</div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="applyFormatting()">Apply to Selection</button>
+                    <button class="btn btn-secondary" onclick="clearFormatting()">Clear All</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>Preview</h2>
+                <div class="preview" id="preview">
+                    <span class="mc-white">Hello, Minecraft World!</span>
+                </div>
+
+                <h2>Generated Command</h2>
+                <div class="output" id="output" onclick="copyToClipboard()">
+                    /tellraw @a {"text":"Hello, Minecraft World!","color":"white"}
+                    <div class="copy-tooltip">
+                        <svg class="copy-icon" viewBox="0 0 24 24">
+                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                        </svg>
+                        Copy to Clipboard
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let textComponents = [];
+        let currentColor = 'white';
+        let currentFormatting = {};
+        let currentSelector = '@a';
+        let currentClickEvent = { type: 'none', value: '' };
+        let currentHoverEvent = { type: 'none', value: '' };
+
+        // Color mapping
+        const colorMap = {
+            'black': '#000000',
+            'dark_blue': '#0000AA',
+            'dark_green': '#00AA00',
+            'dark_aqua': '#00AAAA',
+            'dark_red': '#AA0000',
+            'dark_purple': '#AA00AA',
+            'gold': '#FFAA00',
+            'gray': '#AAAAAA',
+            'dark_gray': '#555555',
+            'blue': '#5555FF',
+            'green': '#55FF55',
+            'aqua': '#55FFFF',
+            'red': '#FF5555',
+            'light_purple': '#FF55FF',
+            'yellow': '#FFFF55',
+            'white': '#FFFFFF'
+        };
+
+        // Selector descriptions
+        const selectorInfo = {
+            '@a': 'Sends message to all players on the server',
+            '@p': 'Sends message to the nearest player to the command source',
+            '@s': 'Sends message to the entity that executed the command',
+            '@r': 'Sends message to a random player',
+            '@e': 'Sends message to all entities (players, mobs, items, etc.)',
+            'player_name': 'Sends message to a specific player (replace "player_name" with actual username)'
+        };
+
+        // Click event descriptions
+        const clickEventInfo = {
+            'none': '',
+            'run_command': 'Executes a command when clicked (e.g., /say Hello)',
+            'suggest_command': 'Suggests a command in chat when clicked (e.g., /gamemode creative)',
+            'open_url': 'Opens a URL in browser when clicked (e.g., https://minecraft.net)',
+            'copy_to_clipboard': 'Copies text to clipboard when clicked',
+            'change_page': 'Changes to a specific page in a book (page number)'
+        };
+
+        // Hover event descriptions
+        const hoverEventInfo = {
+            'none': '',
+            'show_text': 'Shows custom text when hovered (supports formatting)',
+            'show_item': 'Shows item tooltip when hovered (requires item JSON)',
+            'show_entity': 'Shows entity info when hovered (requires entity JSON)'
+        };
+
+        // Initialize with default text
+        function initializeComponents() {
+            const text = document.getElementById('textInput').value || 'Hello, Minecraft World!';
+            textComponents = [{
+                text: text,
+                color: 'white',
+                formatting: {}
+            }];
+        }
+
+        // Initialize event listeners
+        document.getElementById('textInput').addEventListener('input', handleTextChange);
+        
+        // Target selector change
+        document.getElementById('targetSelector').addEventListener('change', function() {
+            currentSelector = this.value;
+            updateSelectorInfo();
+            generateTellraw();
+        });
+
+        // Click event listeners
+        document.getElementById('clickEventType').addEventListener('change', function() {
+            currentClickEvent.type = this.value;
+            updateClickEventUI();
+            generateTellraw();
+        });
+
+        document.getElementById('clickEventValue').addEventListener('input', function() {
+            currentClickEvent.value = this.value;
+            generateTellraw();
+        });
+
+        // Hover event listeners
+        document.getElementById('hoverEventType').addEventListener('change', function() {
+            currentHoverEvent.type = this.value;
+            updateHoverEventUI();
+            generateTellraw();
+        });
+
+        document.getElementById('hoverEventValue').addEventListener('input', function() {
+            currentHoverEvent.value = this.value;
+            generateTellraw();
+        });
+
+        function updateClickEventUI() {
+            const valueInput = document.getElementById('clickEventValue');
+            const infoDiv = document.getElementById('clickEventInfo');
+            
+            if (currentClickEvent.type === 'none') {
+                valueInput.style.display = 'none';
+                infoDiv.style.display = 'none';
+            } else {
+                valueInput.style.display = 'block';
+                infoDiv.style.display = 'block';
+                infoDiv.textContent = clickEventInfo[currentClickEvent.type];
+                
+                // Update placeholder based on event type
+                switch (currentClickEvent.type) {
+                    case 'run_command':
+                        valueInput.placeholder = 'e.g., /say Hello World!';
+                        break;
+                    case 'suggest_command':
+                        valueInput.placeholder = 'e.g., /gamemode creative';
+                        break;
+                    case 'open_url':
+                        valueInput.placeholder = 'e.g., https://minecraft.net';
+                        break;
+                    case 'copy_to_clipboard':
+                        valueInput.placeholder = 'Text to copy to clipboard';
+                        break;
+                    case 'change_page':
+                        valueInput.placeholder = 'Page number (e.g., 1)';
+                        break;
+                }
+            }
+        }
+
+        function updateHoverEventUI() {
+            const valueInput = document.getElementById('hoverEventValue');
+            const infoDiv = document.getElementById('hoverEventInfo');
+            
+            if (currentHoverEvent.type === 'none') {
+                valueInput.style.display = 'none';
+                infoDiv.style.display = 'none';
+            } else {
+                valueInput.style.display = 'block';
+                infoDiv.style.display = 'block';
+                infoDiv.textContent = hoverEventInfo[currentHoverEvent.type];
+                
+                // Update placeholder based on event type
+                switch (currentHoverEvent.type) {
+                    case 'show_text':
+                        valueInput.placeholder = 'e.g., This is hover text!';
+                        break;
+                    case 'show_item':
+                        valueInput.placeholder = 'e.g., {"id":"minecraft:diamond_sword","Count":1}';
+                        break;
+                    case 'show_entity':
+                        valueInput.placeholder = 'e.g., {"name":"Steve","type":"minecraft:player","id":"uuid"}';
+                        break;
+                }
+            }
+        }
+
+        function updateSelectorInfo() {
+            const infoElement = document.getElementById('selectorInfo');
+            infoElement.textContent = selectorInfo[currentSelector] || selectorInfo['@a'];
+        }
+        
+        // Color selection
+        document.querySelectorAll('.color-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                currentColor = this.dataset.color;
+            });
+        });
+
+        // Formatting checkboxes
+        ['bold', 'italic', 'underlined', 'strikethrough', 'obfuscated'].forEach(format => {
+            document.getElementById(format).addEventListener('change', function() {
+                currentFormatting[format] = this.checked;
+            });
+        });
+
+        function handleTextChange() {
+            const text = document.getElementById('textInput').value || 'Hello, Minecraft World!';
+            // Reset to single component when text changes
+            textComponents = [{
+                text: text,
+                color: 'white',
+                formatting: {}
+            }];
+            updatePreview();
+        }
+
+        function applyFormatting() {
+            const textarea = document.getElementById('textInput');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const fullText = textarea.value;
+
+            if (start === end) {
+                // No selection, apply to entire text
+                textComponents = [{
+                    text: fullText,
+                    color: currentColor,
+                    formatting: {...currentFormatting},
+                    clickEvent: currentClickEvent.type !== 'none' ? {...currentClickEvent} : null,
+                    hoverEvent: currentHoverEvent.type !== 'none' ? {...currentHoverEvent} : null
+                }];
+            } else {
+                // Apply formatting to selection while preserving existing formatting
+                const newComponents = [];
+                let currentPos = 0;
+
+                // Check if we need to rebuild components based on current text
+                const currentFullText = textComponents.map(c => c.text).join('');
+                if (currentFullText !== fullText) {
+                    // Text has changed, reset to single component
+                    textComponents = [{
+                        text: fullText,
+                        color: 'white',
+                        formatting: {}
+                    }];
+                }
+
+                // Split existing components based on selection
+                for (let i = 0; i < textComponents.length; i++) {
+                    const component = textComponents[i];
+                    const componentStart = currentPos;
+                    const componentEnd = currentPos + component.text.length;
+
+                    if (componentEnd <= start) {
+                        // Component is entirely before selection
+                        newComponents.push({...component});
+                    } else if (componentStart >= end) {
+                        // Component is entirely after selection
+                        newComponents.push({...component});
+                    } else {
+                        // Component overlaps with selection
+                        const beforeSelectionText = component.text.substring(0, Math.max(0, start - componentStart));
+                        const selectedText = component.text.substring(
+                            Math.max(0, start - componentStart),
+                            Math.min(component.text.length, end - componentStart)
+                        );
+                        const afterSelectionText = component.text.substring(Math.min(component.text.length, end - componentStart));
+
+                        // Add before selection part (keep original formatting)
+                        if (beforeSelectionText) {
+                            newComponents.push({
+                                text: beforeSelectionText,
+                                color: component.color,
+                                formatting: {...component.formatting},
+                                clickEvent: component.clickEvent,
+                                hoverEvent: component.hoverEvent
+                            });
+                        }
+
+                        // Add selected part (apply new formatting)
+                        if (selectedText) {
+                            newComponents.push({
+                                text: selectedText,
+                                color: currentColor,
+                                formatting: {...currentFormatting},
+                                clickEvent: currentClickEvent.type !== 'none' ? {...currentClickEvent} : null,
+                                hoverEvent: currentHoverEvent.type !== 'none' ? {...currentHoverEvent} : null
+                            });
+                        }
+
+                        // Add after selection part (keep original formatting)
+                        if (afterSelectionText) {
+                            newComponents.push({
+                                text: afterSelectionText,
+                                color: component.color,
+                                formatting: {...component.formatting},
+                                clickEvent: component.clickEvent,
+                                hoverEvent: component.hoverEvent
+                            });
+                        }
+                    }
+
+                    currentPos = componentEnd;
+                }
+
+                textComponents = newComponents;
+            }
+
+            updatePreview();
+        }
+
+        function clearFormatting() {
+            const text = document.getElementById('textInput').value || 'Hello, Minecraft World!';
+            textComponents = [{
+                text: text,
+                color: 'white',
+                formatting: {}
+            }];
+            
+            // Reset UI
+            document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
+            document.querySelector('[data-color="white"]').classList.add('selected');
+            currentColor = 'white';
+            
+            ['bold', 'italic', 'underlined', 'strikethrough', 'obfuscated'].forEach(format => {
+                document.getElementById(format).checked = false;
+                currentFormatting[format] = false;
+            });
+            
+            // Reset events
+            document.getElementById('clickEventType').value = 'none';
+            document.getElementById('hoverEventType').value = 'none';
+            currentClickEvent = { type: 'none', value: '' };
+            currentHoverEvent = { type: 'none', value: '' };
+            updateClickEventUI();
+            updateHoverEventUI();
+            
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const preview = document.getElementById('preview');
+            let previewHTML = '';
+
+            textComponents.forEach(component => {
+                let classes = [`mc-${component.color.replace('_', '-')}`];
+                
+                if (component.formatting.bold) classes.push('mc-bold');
+                if (component.formatting.italic) classes.push('mc-italic');
+                if (component.formatting.underlined) classes.push('mc-underlined');
+                if (component.formatting.strikethrough) classes.push('mc-strikethrough');
+                
+                let displayText = component.text;
+                if (component.formatting.obfuscated) {
+                    displayText = component.text.split('').map(() => 
+                        String.fromCharCode(33 + Math.floor(Math.random() * 94))
+                    ).join('');
+                }
+                
+                previewHTML += `<span class="${classes.join(' ')}">${displayText}</span>`;
+            });
+            
+            preview.innerHTML = previewHTML;
+            
+            // Handle obfuscated animation
+            const hasObfuscated = textComponents.some(c => c.formatting.obfuscated);
+            if (hasObfuscated) {
+                const interval = setInterval(() => {
+                    if (!textComponents.some(c => c.formatting.obfuscated)) {
+                        clearInterval(interval);
+                        return;
+                    }
+                    
+                    let animatedHTML = '';
+                    textComponents.forEach(component => {
+                        let classes = [`mc-${component.color.replace('_', '-')}`];
+                        
+                        if (component.formatting.bold) classes.push('mc-bold');
+                        if (component.formatting.italic) classes.push('mc-italic');
+                        if (component.formatting.underlined) classes.push('mc-underlined');
+                        if (component.formatting.strikethrough) classes.push('mc-strikethrough');
+                        
+                        let displayText = component.text;
+                        if (component.formatting.obfuscated) {
+                            displayText = component.text.split('').map(() => 
+                                String.fromCharCode(33 + Math.floor(Math.random() * 94))
+                            ).join('');
+                        }
+                        
+                        animatedHTML += `<span class="${classes.join(' ')}">${displayText}</span>`;
+                    });
+                    
+                    preview.innerHTML = animatedHTML;
+                }, 100);
+            }
+            
+            generateTellraw();
+        }
+
+        function generateTellraw() {
+            const output = document.getElementById('output');
+            const tooltip = output.querySelector('.copy-tooltip');
+            
+            // Get the selected target or use custom player name
+            let targetSelector = currentSelector;
+            if (currentSelector === 'player_name') {
+                targetSelector = 'player_name'; // User should replace this
+            }
+            
+            if (textComponents.length === 1) {
+                // Single component
+                const component = textComponents[0];
+                let jsonObj = {
+                    text: component.text,
+                    color: component.color
+                };
+                
+                // Add formatting
+                Object.keys(component.formatting).forEach(format => {
+                    if (component.formatting[format]) {
+                        jsonObj[format] = true;
+                    }
+                });
+                
+                // Add click event
+                if (component.clickEvent && component.clickEvent.type !== 'none' && component.clickEvent.value) {
+                    jsonObj.clickEvent = {
+                        action: component.clickEvent.type,
+                        value: component.clickEvent.value
+                    };
+                }
+                
+                // Add hover event
+                if (component.hoverEvent && component.hoverEvent.type !== 'none' && component.hoverEvent.value) {
+                    if (component.hoverEvent.type === 'show_text') {
+                        jsonObj.hoverEvent = {
+                            action: component.hoverEvent.type,
+                            contents: component.hoverEvent.value
+                        };
+                    } else {
+                        // For show_item and show_entity, try to parse as JSON
+                        try {
+                            const parsedValue = JSON.parse(component.hoverEvent.value);
+                            jsonObj.hoverEvent = {
+                                action: component.hoverEvent.type,
+                                contents: parsedValue
+                            };
+                        } catch (e) {
+                            // If parsing fails, use as string
+                            jsonObj.hoverEvent = {
+                                action: component.hoverEvent.type,
+                                contents: component.hoverEvent.value
+                            };
+                        }
+                    }
+                }
+                
+                const command = `/tellraw ${targetSelector} ${JSON.stringify(jsonObj)}`;
+                output.innerHTML = command + tooltip.outerHTML;
+            } else {
+                // Multiple components
+                const jsonArray = textComponents.map(component => {
+                    let jsonObj = {
+                        text: component.text,
+                        color: component.color
+                    };
+                    
+                    // Add formatting
+                    Object.keys(component.formatting).forEach(format => {
+                        if (component.formatting[format]) {
+                            jsonObj[format] = true;
+                        }
+                    });
+                    
+                    // Add click event
+                    if (component.clickEvent && component.clickEvent.type !== 'none' && component.clickEvent.value) {
+                        jsonObj.clickEvent = {
+                            action: component.clickEvent.type,
+                            value: component.clickEvent.value
+                        };
+                    }
+                    
+                    // Add hover event
+                    if (component.hoverEvent && component.hoverEvent.type !== 'none' && component.hoverEvent.value) {
+                        if (component.hoverEvent.type === 'show_text') {
+                            jsonObj.hoverEvent = {
+                                action: component.hoverEvent.type,
+                                contents: component.hoverEvent.value
+                            };
+                        } else {
+                            // For show_item and show_entity, try to parse as JSON
+                            try {
+                                const parsedValue = JSON.parse(component.hoverEvent.value);
+                                jsonObj.hoverEvent = {
+                                    action: component.hoverEvent.type,
+                                    contents: parsedValue
+                                };
+                            } catch (e) {
+                                // If parsing fails, use as string
+                                jsonObj.hoverEvent = {
+                                    action: component.hoverEvent.type,
+                                    contents: component.hoverEvent.value
+                                };
+                            }
+                        }
+                    }
+                    
+                    return jsonObj;
+                });
+                
+                const command = `/tellraw ${targetSelector} ${JSON.stringify(jsonArray)}`;
+                output.innerHTML = command + tooltip.outerHTML;
+            }
+        }
+
+        function copyToClipboard() {
+            const output = document.getElementById('output');
+            const tooltip = output.querySelector('.copy-tooltip');
+            const commandText = output.textContent.replace('Copy to Clipboard', '').trim();
+            
+            navigator.clipboard.writeText(commandText).then(() => {
+                // Visual feedback
+                const originalHTML = tooltip.innerHTML;
+                tooltip.innerHTML = `
+                    <svg class="copy-icon" viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg>
+                    Copied!
+                `;
+                tooltip.classList.add('copied');
+                
+                setTimeout(() => {
+                    tooltip.innerHTML = originalHTML;
+                    tooltip.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                const originalHTML = tooltip.innerHTML;
+                tooltip.innerHTML = `
+                    <svg class="copy-icon" viewBox="0 0 24 24">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                    Failed to copy
+                `;
+                
+                setTimeout(() => {
+                    tooltip.innerHTML = originalHTML;
+                }, 2000);
+            });
+        }
+
+        // Initialize
+        initializeComponents();
+        updatePreview();
+        updateSelectorInfo();
+        updateClickEventUI();
+        updateHoverEventUI();
+    </script>
+</body>
+</html>
